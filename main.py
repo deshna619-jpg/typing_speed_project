@@ -1,33 +1,41 @@
-import time
-import webbrowser
-import os
+from flask import Flask, render_template, request
+import time, random   # ← Added random here
 
-# Get the absolute path of your HTML file
-html_path = os.path.abspath("index.html")
+app = Flask(__name__)
 
-# Open the HTML page in your default browser
-webbrowser.open(f"file://{html_path}")
+# Multiple paragraphs to choose from
+paragraphs = [
+    "Python is a powerful and easy to learn programming language.",
+    "Flask allows developers to create web applications using simple Python code.",
+    "Programming helps develop problem solving and logical thinking skills.",
+    "Data structures like lists, tuples, and dictionaries make Python very flexible.",
+    "Learning to code improves creativity and analytical abilities among students."
+]
 
-# Sentence to type
-sentence = "The quick brown fox jumps over the lazy dog."
+@app.route("/", methods=["GET", "POST"])
+def index():
+    paragraph = random.choice(paragraphs)   # ← Randomly pick one each time
 
-input("Press Enter when you are ready to start typing...")
+    if request.method == "POST":
+        user_input = request.form["typed_text"]
+        start_time = float(request.form["start_time"])
+        end_time = time.time()
 
-start = time.time()
-typed = input("\nType the sentence here:\n")
-end = time.time()
+        total_time = end_time - start_time
+        words = len(user_input.split())
+        speed = round(words / (total_time / 60), 2) if total_time > 0 else 0
 
-time_taken = end - start
-words = len(typed.split())
-speed = words / (time_taken / 60)
+        # Calculate accuracy
+        correct_chars = 0
+        for i in range(min(len(paragraph), len(user_input))):
+            if paragraph[i] == user_input[i]:
+                correct_chars += 1
+        accuracy = round((correct_chars / len(paragraph)) * 100, 2)
 
-# Accuracy check
-correct = 0
-for i, c in enumerate(typed):
-    if i < len(sentence) and c == sentence[i]:
-        correct += 1
-accuracy = correct / len(sentence) * 100
+        return render_template("index.html", paragraph=paragraph, speed=speed, accuracy=accuracy, done=True)
 
-print(f"\nTime Taken: {round(time_taken, 2)} seconds")
-print(f"Typing Speed: {round(speed, 2)} words per minute")
-print(f"Accuracy: {round(accuracy, 2)}%")
+    return render_template("index.html", paragraph=paragraph, done=False)
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
