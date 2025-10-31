@@ -1,0 +1,2 @@
+Speed: 3.7 wpm | Accuracy: 0.0% | Time: 16.21s
+Speed: 74.28 wpm | Accuracy: 93.18% | Time: 7.27s
