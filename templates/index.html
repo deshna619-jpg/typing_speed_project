@@ -6,16 +6,23 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
         let startTime;
+        let timerInterval;
 
         function startTyping() {
             startTime = new Date().getTime() / 1000;
             document.getElementById('start_time').value = startTime;
+            let seconds = 0;
+            timerInterval = setInterval(() => {
+                seconds++;
+                document.getElementById('timer').innerText = `Time: ${seconds}s`;
+            }, 1000);
         }
     </script>
 </head>
 <body>
     <div class="container">
         <h1>Typing Speed Test</h1>
+        <p id="timer">Time: 0s</p>
         <p id="para">{{ paragraph }}</p>
 
         {% if not done %}
