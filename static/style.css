@@ -1,43 +1,74 @@
 body {
     font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    text-align: center;
-    padding: 40px;
+    background-color: #e0f7fa;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
 }
 
 .container {
-    background: white;
-    max-width: 600px;
-    margin: auto;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 900px;
+    margin: 40px 0;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+}
+
+#paragraph {
+    padding: 15px;
+    background-color: #fff3e0;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
+    font-size: 18px;
+    line-height: 1.5;
 }
 
 textarea {
     width: 100%;
-    font-size: 16px;
     padding: 10px;
-    margin-top: 10px;
+    border: 1px solid #4caf50;
+    border-radius: 5px;
+    margin-bottom: 15px;
 }
 
 button {
-    background: #4CAF50;
+    padding: 8px 16px;
+    background-color: #4caf50;
     color: white;
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
+    border-radius: 5px;
     cursor: pointer;
-    border-radius: 10px;
+    margin-right: 10px;
 }
 
-button:hover {
-    background: #45a049;
+#timer {
+    text-align: center;
+    font-weight: bold;
+    color: #d32f2f;
+    margin-top: 10px;
+    font-size: 18px;
 }
 
-.result {
-    background: #eafbea;
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 20px;
+.results p {
+    text-align: center;
+    font-size: 24px;
+    color: #1976d2;
+    margin: 5px 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

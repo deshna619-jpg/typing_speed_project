@@ -2,43 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Typing Speed Test</title>
+    <title>Typing Test</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script>
-        let startTime;
-        let timerInterval;
-
-        function startTyping() {
-            startTime = new Date().getTime() / 1000;
-            document.getElementById('start_time').value = startTime;
-            let seconds = 0;
-            timerInterval = setInterval(() => {
-                seconds++;
-                document.getElementById('timer').innerText = `Time: ${seconds}s`;
-            }, 1000);
-        }
-    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Typing Speed Test</h1>
-        <p id="timer">Time: 0s</p>
-        <p id="para">{{ paragraph }}</p>
+<div class="container">
+    <h1>Typing Test</h1>
+    <p id="paragraph">{{ paragraph }}</p>
 
-        {% if not done %}
-        <form method="POST" onsubmit="return confirm('Are you sure you want to submit?')">
-            <textarea name="typed_text" rows="5" cols="60" placeholder="Start typing here..." onfocus="startTyping()" required></textarea>
-            <input type="hidden" name="start_time" id="start_time">
-            <button type="submit">Check Speed</button>
-        </form>
-        {% else %}
-        <div class="result">
-            <h2>Results</h2>
-            <p><b>Speed:</b> {{ speed }} WPM</p>
-            <p><b>Accuracy:</b> {{ accuracy }}%</p>
-            <a href="/">Try Again</a>
+    <form method="POST">
+        <textarea id="typed_text" name="typed_text" rows="6" cols="80" placeholder="Start typing here..." disabled>{{ typed_text }}</textarea>
+        <input type="hidden" name="start_time" id="start_time" value="{{ start_time }}">
+        <div>
+            <button type="button" id="startBtn">Start Test</button>
+            <button type="button" onclick="window.location.href='/try-again'">Try Again</button>
         </div>
-        {% endif %}
-    </div>
+    </form>
+
+    <p>Time: <span id="timer">30</span> seconds</p>
+
+    {% if result is not none %}
+    <h2>Results:</h2>
+    <p style="font-size:24px; margin-top:20px;">Typing Speed: {{ result }} WPM</p>
+    <p style="font-size:24px;">Accuracy: {{ accuracy }}%</p>
+    {% endif %}
+</div>
+
+<script>
+let timerElement = document.getElementById('timer');
+let typedArea = document.getElementById('typed_text');
+let startBtn = document.getElementById('startBtn');
+let startTimeInput = document.getElementById('start_time');
+let timeLeft = 30;
+let interval;
+
+startBtn.onclick = function() {
+    typedArea.disabled = false;
+    typedArea.focus();
+    startBtn.disabled = true;
+    startTimeInput.value = Date.now() / 1000; // timestamp in seconds
+    interval = setInterval(() => {
+        timeLeft--;
+        timerElement.innerText = timeLeft;
+        if(timeLeft <= 0) {
+            clearInterval(interval);
+            typedArea.form.submit();
+        }
+    }, 1000);
+}
+</script>
 </body>
 </html>
+
+
+
+
+
