@@ -3,7 +3,7 @@ body::before {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background-image: url('https://i.pinimg.com/originals/0f/d0/5a/0fd05a8e2b68595052c1bb2385ed6677.gif'); 
+    background-image: url('https://i.pinimg.com/originals/0f/d0/5a/0fd05a8e2b68595052c1bb2385ed6677.gif');
     background-size: cover;
     background-position: center;
     z-index: -1; /* behind everything */
@@ -31,7 +31,8 @@ body {
     100% {background-position: 0% 50%;}
 }
 
-/* Container */
+/* 🧠 Typing Test Container    */
+
 .container {
     background-color: rgba(255, 255, 255, 0.85);
     padding: 40px 30px;
@@ -95,4 +96,87 @@ textarea {
     font-size: 18px;
     margin-bottom: 20px;
     color: #111;
+}
+
+/* --------------------------- */
+/* 🌇 Intro Screen Styling     */
+/* --------------------------- */
+#intro {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    background: linear-gradient(135deg, purple, pink, orange);
+    background-size: 600% 600%;
+    animation: sunsetBG 10s ease infinite alternate;
+}
+
+/* Title animation */
+.animated-text {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeSlideIn 2s forwards;
+}
+
+.animated-text::after {
+    content: '|';
+    display: inline-block;
+    margin-left: 5px;
+    opacity: 0;
+    animation: cursorBlink 1s step-start 2s infinite;
+}
+
+/* Intro animations */
+@keyframes fadeSlideIn {
+    0% {opacity: 0; transform: translateY(20px);}
+    100% {opacity: 1; transform: translateY(0);}
+}
+
+@keyframes cursorBlink {
+    0%, 50% {opacity: 1;}
+    51%, 100% {opacity: 0;}
+}
+
+@keyframes sunsetBG {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+/* 🌞 Sunrise gradient for typing screen */
+body.typing-active {
+    background: linear-gradient(270deg, #fff5e6, #ffe0b3, #ffd59e, #fff2e6);
+    background-size: 800% 800%;
+    animation: sunriseBG 15s ease infinite;
+    transition: background 1s ease;
+}
+
+@keyframes sunriseBG {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+.credits {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    color: #0d1b2a; /* dark navy blue tone — professional look */
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 1px;
+    animation: fadeInUp 2.5s ease-in forwards;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.2); /* subtle contrast */
+}
+
+@keyframes fadeInUp {
+    0% {opacity: 0; transform: translate(-50%, 20px);}
+    100% {opacity: 1; transform: translate(-50%, 0);}
 }
