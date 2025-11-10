@@ -3,9 +3,9 @@ from datetime import datetime
 import random
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"  # required for session
+app.secret_key = "your_secret_key_here"  # Required for session management. Sessions allow storing user-specific data like the paragraph for typing test.
 
-# Long paragraphs
+# A collection of long paragraphs for typing practice. The app randomly selects one for each session.
 PARAGRAPHS = [
     "python is a powerful programming language widely used in web development data analysis artificial intelligence machine learning and automation its simplicity readability and flexibility make it a favorite among beginners and professionals learning python opens many opportunities in software development data science and other tech careers practicing python regularly helps improve coding skills and problem solving",
 
@@ -24,55 +24,66 @@ PARAGRAPHS = [
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    typed_text = ""
-    result = None
-    accuracy = None
+    """
+    The main route of the application.
+    Handles both displaying the typing test and processing the submitted typed text.
+    """
+    typed_text = ""  # Initialize typed text input from user
+    result = None    # To store calculated WPM after submission
+    accuracy = None  # To store typing accuracy percentage after submission
 
-    # Select paragraph if not in session
+    # If this is a new session, select a random paragraph and store it in session
     if 'paragraph' not in session:
         session['paragraph'] = random.choice(PARAGRAPHS)
     paragraph = session['paragraph']
 
     if request.method == 'POST':
+        # Retrieve the text typed by the user from the form
         typed_text = request.form['typed_text'].strip()
-        start_time = float(request.form['start_time'])
-        end_time = datetime.now().timestamp()
-        time_taken = end_time - start_time
 
+        # Retrieve the starting timestamp sent from the form and calculate time taken
+        start_time = float(request.form['start_time'])
+        end_time = datetime.now().timestamp()  # Current timestamp
+        time_taken = end_time - start_time     # Time in seconds
+
+        # Split both original paragraph and typed text into words
         typed_words = typed_text.split()
         original_words = paragraph.split()
 
-        # Count only correctly typed words
+        # Count number of correctly typed words
         correct_words = 0
         for i in range(len(typed_words)):
             if i < len(original_words) and typed_words[i] == original_words[i]:
                 correct_words += 1
 
+        # Avoid division by zero if user typed nothing
         total_typed_words = len(typed_words) if len(typed_words) > 0 else 1
-        accuracy = round((correct_words / total_typed_words) * 100, 2)
+        accuracy = round((correct_words / total_typed_words) * 100, 2)  # Accuracy in percentage
 
-        # WPM counts only correct words
+        # Calculate Words Per Minute (WPM) based only on correctly typed words
         result = round(correct_words / (time_taken / 60), 2)
 
-    return render_template('index.html',
-                           paragraph=paragraph,
-                           typed_text=typed_text,
-                           result=result,
-                           accuracy=accuracy,
-                           start_time=datetime.now().timestamp())
+    # Render the main page with all necessary variables
+    return render_template(
+        'index.html',
+        paragraph=paragraph,
+        typed_text=typed_text,
+        result=result,
+        accuracy=accuracy,
+        start_time=datetime.now().timestamp()  # Send a new timestamp for new typing session
+    )
 
 @app.route('/try-again')
 def try_again():
-    # Change paragraph randomly on Try Again
+    """
+    Route to reset the typing test with a new random paragraph.
+    This allows users to practice multiple paragraphs without refreshing manually.
+    """
+    # Select a new random paragraph for the next typing test
     session['paragraph'] = random.choice(PARAGRAPHS)
+    # Redirect back to main page
     return "<script>window.location.href='/'</script>"
 
 if __name__ == "__main__":
+    # Run the Flask app in debug mode for development purposes
     app.run(debug=True)
-
-
-
-
-
-
-
