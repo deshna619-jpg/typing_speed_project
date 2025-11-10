@@ -2,146 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Typing Speed Test</title>
+    <title>TYPING SPEED TEST</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        /* Intro screen (sunset colors) */
-        #intro {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            text-align: center;
-            color: white;
-            font-size: 48px;
-            cursor: pointer;
-            background: linear-gradient(135deg, purple, pink, orange);
-            background-size: 600% 600%;
-            animation: sunsetBG 10s ease infinite alternate;
-        }
-
-        .animated-text {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeSlideIn 2s forwards;
-        }
-
-        .animated-text::after {
-            content: '|';
-            display: inline-block;
-            margin-left: 5px;
-            opacity: 0;
-            animation: cursorBlink 1s step-start 2s infinite;
-        }
-
-        @keyframes fadeSlideIn {
-            0% {opacity:0; transform:translateY(20px);}
-            100% {opacity:1; transform:translateY(0);}
-        }
-
-        @keyframes cursorBlink {
-            0%, 50% {opacity:1;}
-            51%, 100% {opacity:0;}
-        }
-
-        @keyframes sunsetBG {
-            0%{background-position:0% 50%;}
-            50%{background-position:100% 50%;}
-            100%{background-position:0% 50%;}
-        }
-
-        /* Typing test container (sunrise colors) */
-        body.typing-active {
-            background: linear-gradient(270deg, #fff5e6, #ffe0b3, #ffd59e, #fff2e6);
-            background-size: 800% 800%;
-            animation: sunriseBG 15s ease infinite;
-            transition: background 1s ease;
-        }
-
-        @keyframes sunriseBG {
-            0%{background-position:0% 50%;}
-            50%{background-position:100% 50%;}
-            100%{background-position:0% 50%;}
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: Arial, sans-serif;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: auto;
-            padding: 40px;
-            color: black;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 48px;
-            color: black; /* Typing Test heading black */
-        }
-
-        #paragraph {
-            font-size: 20px;
-            margin-bottom: 20px;
-        }
-
-        textarea {
-            width: 100%;
-            font-size: 18px;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            resize: none;
-            background-color: white;
-        }
-
-        .buttons-container {
-            margin-top: 15px;
-            display: flex;
-            gap: 15px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 18px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: rgba(0,0,0,0.1);
-            color: black;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background-color: rgba(0,0,0,0.3);
-            color: white;
-        }
-
-        #timer {
-            font-weight: bold;
-        }
-
-        .results-text {
-            font-size: 24px;
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
 
 <div id="intro">
-    <h1 class="animated-text">TYPING SPEED TEST</h1>
-    <p style="font-size:24px;margin-top:20px;">click anywhere to start</p>
+    <div class="intro-content">
+        <h1 class="animated-text">TypeQuest</h1>
+        <p style="font-size:24px;margin-top:20px;">Click anywhere to start</p>
+    </div>
 </div>
 
+<div id="about-screen" style="display:none;">
+    <div class="about-container">
+        <h1>About Our Website</h1>
+        <p class="about-text">
+            Welcome to TypeQuest!<br><br>
+            Built using Flask (Python), TypeQuest is a typing speed test website that helps users test and improve their typing speed. This website combines gradients and animations to make typing practice fun and engaging.<br><br>
+            Features:<br>
+          1.Typing Speed Test: Measure your typing speed in words per minute (WPM) and get an accuracy percentage to track your improvement.<br>
+          2.Dynamic Paragraphs: Each test provides random paragraphs to ensure varied practice.<br>
+          3.Timer-Based Challenge: Complete tests within a set time(30 seconds) to challenge your speed and consistency.<br>
+          4.Retry Option: Easily try another paragraph to practice again and improve your score.<br>
+        </p>
+
+        <button id="startTestBtn">Start Typing Test</button>
+
+        <div class="creator-section">
+            <h2>✨Meet the Creators✨</h2>
+            <p>
+                <strong>Anupama Bharti</strong>- a BTech CSE-AI student<br><br>
+                <strong>Deshna Jain</strong>- a BTech CSE-AI student<br><br>
+            </p>
+        </div>
+    </div>
+</div>
 <div class="container" id="typing-container" style="display:none;">
     <h1>Typing Test</h1>
     <p id="paragraph">{{ paragraph }}</p>
@@ -165,17 +61,26 @@
 </div>
 
 <script>
-    // Intro click to start typing test
     const intro = document.getElementById('intro');
+    const aboutScreen = document.getElementById('about-screen');
     const typingContainer = document.getElementById('typing-container');
+    const startTestBtn = document.getElementById('startTestBtn');
 
+    // 1️⃣ Intro click -> About screen
     intro.addEventListener('click', () => {
         intro.style.display = 'none';
+        aboutScreen.style.display = 'flex';
+        document.body.classList.add('about-active');
+    });
+
+    // 2️⃣ About screen button -> Typing test
+    startTestBtn.addEventListener('click', () => {
+        aboutScreen.style.display = 'none';
         typingContainer.style.display = 'block';
         document.body.classList.add('typing-active');
     });
 
-    // Timer and typing logic
+    // 🕒 Timer + test logic
     let timerElement = document.getElementById('timer');
     let typedArea = document.getElementById('typed_text');
     let startBtn = document.getElementById('startBtn');
@@ -187,16 +92,16 @@
         typedArea.disabled = false;
         typedArea.focus();
         startBtn.disabled = true;
-        startTimeInput.value = Date.now() / 1000; // timestamp in seconds
+        startTimeInput.value = Date.now() / 1000;
         interval = setInterval(() => {
             timeLeft--;
             timerElement.innerText = timeLeft;
-            if(timeLeft <= 0) {
+            if (timeLeft <= 0) {
                 clearInterval(interval);
                 typedArea.form.submit();
             }
         }, 1000);
-    }
+    };
 </script>
 
 </body>
