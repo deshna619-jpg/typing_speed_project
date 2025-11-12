@@ -1,89 +1,123 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from datetime import datetime
-import random
+import random, json, os
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"  # Required for session management. Sessions allow storing user-specific data like the paragraph for typing test.
+app.secret_key = "your_secret_key_here"
 
-# A collection of long paragraphs for typing practice. The app randomly selects one for each session.
-PARAGRAPHS = [
-    "python is a powerful programming language widely used in web development data analysis artificial intelligence machine learning and automation its simplicity readability and flexibility make it a favorite among beginners and professionals learning python opens many opportunities in software development data science and other tech careers practicing python regularly helps improve coding skills and problem solving",
+# Paragraphs for each difficulty
+PARAGRAPHS = {
+    "easy": [
+        "Typing is one of the most basic yet important computer skills for beginners. Learning to type correctly helps improve speed and accuracy, making everyday tasks like writing emails, chatting online, or even coding much smoother. With regular practice, typing becomes second nature and saves a lot of time when working on a computer."
+    ],
+    "medium": [
+        "Building good digital habits is essential for anyone who spends time on computers. Simple actions like organizing files into proper folders, keeping backups, and using antivirus software can make a huge difference in maintaining a secure and efficient system. Regularly updating your operating system and applications ensures better performance, while avoiding suspicious downloads protects your data. Alongside this, managing your time wisely with digital planners or productivity apps helps you stay focused and prevents distractions such as social media from slowing you down."
+    ],
+    "hard": [
+        "Python is a powerful and versatile programming language that has become a cornerstone of modern computing. It is widely used in fields such as web development, data analysis, artificial intelligence, machine learning, and automation. Its clean and readable syntax makes it beginner-friendly, while its vast ecosystem of libraries and frameworks allows professionals to solve complex problems efficiently. Success in programming, however, is not achieved overnight—it requires patience, consistent practice, and the ability to learn from mistakes. Debugging errors, experimenting with new tools, and adapting to evolving technologies are all part of the journey that shapes a skilled programmer."
+    ]
+}
 
-    "effective time management is important for students and professionals prioritize tasks set realistic goals avoid procrastination and manage deadlines efficiently using calendars reminders and task tracking tools can help stay organized creating daily routines focusing on important tasks and breaking large projects into smaller parts improves productivity disciplined time management reduces stress and helps achieve better results in studies and work",
+RESULTS_FILE = "results.json"
 
-    "typing is an essential skill for programmers writers and office workers it improves productivity allows faster communication and reduces mistakes practicing typing daily increases speed and accuracy focusing on each word maintaining good posture and minimizing distractions enhances performance consistent practice leads to better typing skills and confidence using proper typing techniques ensures long term comfort and efficiency",
 
-    "healthy eating habits play a big role in maintaining energy and focus throughout the day including fruits vegetables whole grains and proteins in daily meals supports physical and mental health staying hydrated and avoiding excessive sugar or junk food helps maintain balance regular meals and mindful eating create better overall wellbeing",
+def save_result(speed, accuracy):
+    """Save a single test result to a JSON file."""
+    record = {
+        "speed": speed,
+        "accuracy": accuracy,
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    results = []
+    if os.path.exists(RESULTS_FILE):
+        try:
+            with open(RESULTS_FILE, "r") as f:
+                results = json.load(f)
+        except json.JSONDecodeError:
+            results = []
+    results.append(record)
+    with open(RESULTS_FILE, "w") as f:
+        json.dump(results, f, indent=4)
 
-    "exercise is important for both physical and mental health regular workouts help build strength improve mood and reduce stress even simple activities like walking stretching or yoga make a big difference staying consistent and setting small goals encourages progress and keeps motivation high",
-
-    "success is not built in a day it grows with every effort every failure and every lesson you learn along the way when things get tough remember why you started and keep pushing forward your consistency and belief in yourself will turn small progress into big achievements keep moving because every step you take is shaping the person you’re meant to become",
-    
-    "reading every day improves knowledge focus and imagination exploring different genres expands vocabulary and thinking skills reading before bed or during free time can be relaxing and helps reduce screen time consistent reading habits contribute to lifelong learning and creativity"
-]
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    """
-    The main route of the application.
-    Handles both displaying the typing test and processing the submitted typed text.
-    """
-    typed_text = ""  # Initialize typed text input from user
-    result = None    # To store calculated WPM after submission
-    accuracy = None  # To store typing accuracy percentage after submission
+    typed_text = ""
+    result = None
+    accuracy = None
 
-    # If this is a new session, select a random paragraph and store it in session
-    if 'paragraph' not in session:
-        session['paragraph'] = random.choice(PARAGRAPHS)
+    # Get difficulty from form (POST) or query param (GET)
+    difficulty = request.values.get('difficulty', 'medium')
+    if difficulty not in PARAGRAPHS:
+        difficulty = 'medium'
+
+    # Reset paragraph if new difficulty selected
+    if 'paragraph' not in session or session.get('difficulty') != difficulty:
+        session['paragraph'] = random.choice(PARAGRAPHS[difficulty])
+        session['difficulty'] = difficulty
+
     paragraph = session['paragraph']
 
     if request.method == 'POST':
-        # Retrieve the text typed by the user from the form
-        typed_text = request.form['typed_text'].strip()
+        typed_text = request.form.get('typed_text', '').strip()
+        time_taken = float(request.form.get('time_taken', 0))  # seconds
 
-        # Retrieve the starting timestamp sent from the form and calculate time taken
-        start_time = float(request.form['start_time'])
-        end_time = datetime.now().timestamp()  # Current timestamp
-        time_taken = end_time - start_time     # Time in seconds
+        if typed_text and time_taken > 0:
+            typed_words = typed_text.split()
+            original_words = paragraph.split()
 
-        # Split both original paragraph and typed text into words
-        typed_words = typed_text.split()
-        original_words = paragraph.split()
+            correct_words = sum(
+                1 for i in range(min(len(typed_words), len(original_words)))
+                if typed_words[i] == original_words[i]
+            )
 
-        # Count number of correctly typed words
-        correct_words = 0
-        for i in range(len(typed_words)):
-            if i < len(original_words) and typed_words[i] == original_words[i]:
-                correct_words += 1
+            total_typed_words = len(typed_words)
+            accuracy = round((correct_words / total_typed_words) * 100, 2) if total_typed_words else 0
+            result = round(correct_words / (time_taken / 60), 2)  # WPM
+            save_result(result, accuracy)
+        else:
+            result = 0
+            accuracy = 0.0
 
-        # Avoid division by zero if user typed nothing
-        total_typed_words = len(typed_words) if len(typed_words) > 0 else 1
-        accuracy = round((correct_words / total_typed_words) * 100, 2)  # Accuracy in percentage
+    # For AJAX updates (difficulty switch)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        new_paragraph = random.choice(PARAGRAPHS[difficulty])
+        session['paragraph'] = new_paragraph
+        session['difficulty'] = difficulty
+        return jsonify({'paragraph': new_paragraph, 'difficulty': difficulty})
 
-        # Calculate Words Per Minute (WPM) based only on correctly typed words
-        result = round(correct_words / (time_taken / 60), 2)
-
-    # Render the main page with all necessary variables
     return render_template(
         'index.html',
         paragraph=paragraph,
         typed_text=typed_text,
         result=result,
         accuracy=accuracy,
-        start_time=datetime.now().timestamp()  # Send a new timestamp for new typing session
+        difficulty=difficulty
     )
+
 
 @app.route('/try-again')
 def try_again():
-    """
-    Route to reset the typing test with a new random paragraph.
-    This allows users to practice multiple paragraphs without refreshing manually.
-    """
-    # Select a new random paragraph for the next typing test
-    session['paragraph'] = random.choice(PARAGRAPHS)
-    # Redirect back to main page
-    return "<script>window.location.href='/'</script>"
+    session.pop('paragraph', None)
+    session.pop('difficulty', None)
+    return redirect(url_for('index'))
+
+
+@app.route('/stats')
+def stats():
+    """Show all previous results and average/best speeds."""
+    results = []
+    if os.path.exists(RESULTS_FILE):
+        try:
+            with open(RESULTS_FILE, "r") as f:
+                results = json.load(f)
+        except json.JSONDecodeError:
+            results = []
+
+    speeds = [r["speed"] for r in results]
+    avg_speed = round(sum(speeds) / len(speeds), 2) if speeds else 0
+    best_speed = max(speeds) if speeds else 0
+    return render_template("stats.html", results=results, avg_speed=avg_speed, best_speed=best_speed)
 
 if __name__ == "__main__":
-    # Run the Flask app in debug mode for development purposes
     app.run(debug=True)
