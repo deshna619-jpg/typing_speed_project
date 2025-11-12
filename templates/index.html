@@ -7,6 +7,7 @@
 </head>
 <body>
 
+<!-- INTRO -->
 <div id="intro">
     <div class="intro-content">
         <h1 class="animated-text">TypeQuest</h1>
@@ -14,37 +15,47 @@
     </div>
 </div>
 
-<div id="about-screen" style="display:none;">
-    <div class="about-container">
-        <h1>About Our Website</h1>
-        <p class="about-text">
-            Welcome to TypeQuest!<br><br>
-            Built using Flask (Python), TypeQuest is a typing speed test website that helps users test and improve their typing speed. This website combines gradients and animations to make typing practice fun and engaging.<br><br>
-            Features:<br>
-          1.Typing Speed Test: Measure your typing speed in words per minute (WPM) and get an accuracy percentage to track your improvement.<br>
-          2.Dynamic Paragraphs: Each test provides random paragraphs to ensure varied practice.<br>
-          3.Timer-Based Challenge: Complete tests within a set time(30 seconds) to challenge your speed and consistency.<br>
-          4.Retry Option: Easily try another paragraph to practice again and improve your score.<br>
-        </p>
-
+<!-- ABOUT -->
+<div id="about-screen" style="display:none;"> 
+    <div class="about-container"> 
+        <h1>About Our Website</h1> 
+        <p class="about-text"> Welcome to TypeQuest!<br> 
+            Built using Flask (Python), TypeQuest is a typing speed test website that helps users test and improve their typing speed. This website combines gradients and animations to make typing practice fun and engaging.<br> 
+            <div class="features-text"> 
+                Features:<br> 
+                1. Typing Speed Test: Measure your typing speed in words per minute (WPM) and get an accuracy percentage to track your improvement.<br> 
+                2. Dynamic Paragraphs: Each test provides random paragraphs to ensure varied practice.<br> 
+                3. Timer-Based Challenge: Complete tests within a set time (30 seconds) to challenge your speed and consistency.<br> 
+                4. Retry Option: Easily try another paragraph to practice again and improve your score.<br>        
+            </div> 
         <button id="startTestBtn">Start Typing Test</button>
-
-        <div class="creator-section">
-            <h2>✨Meet the Creators✨</h2>
-            <p>
-                <strong>Anupama Bharti</strong>- a BTech CSE-AI student<br><br>
-                <strong>Deshna Jain</strong>- a BTech CSE-AI student<br><br>
-            </p>
-        </div>
-    </div>
+        <div class="creator-section"> 
+            <h2><span class="blink-star">✨</span> <span class="underline-text">Meet the Creators</span> <span class="blink-star">✨</span></h2> 
+            <p><strong>Anupama Bharti</strong> & <strong>Deshna Jain</strong><br>BTech CSE-AI Students</p>
+        </div> 
+    </div> 
 </div>
+
+<!-- TYPING CONTAINER -->
 <div class="container" id="typing-container" style="display:none;">
     <h1>Typing Test</h1>
+
+    <!-- Difficulty Dropdown -->
+    <div class="difficulty-select">
+        <label for="difficulty">Select Difficulty:</label>
+        <select id="difficulty" name="difficulty">
+            <option value="easy" {% if difficulty == 'easy' %}selected{% endif %}>Easy</option>
+            <option value="medium" {% if difficulty == 'medium' %}selected{% endif %}>Medium</option>
+            <option value="hard" {% if difficulty == 'hard' %}selected{% endif %}>Hard</option>
+        </select>
+    </div>
+
     <p id="paragraph">{{ paragraph }}</p>
 
     <form method="POST">
         <textarea id="typed_text" name="typed_text" rows="6" cols="80" placeholder="Start typing here..." disabled>{{ typed_text }}</textarea>
-        <input type="hidden" name="start_time" id="start_time" value="{{ start_time }}">
+        <input type="hidden" name="time_taken" id="time_taken" value="0">
+        <input type="hidden" name="difficulty" value="{{ difficulty }}">
         <div class="buttons-container">
             <button type="button" id="startBtn">Start Test</button>
             <button type="button" onclick="window.location.href='/try-again'">Try Again</button>
@@ -61,48 +72,62 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     const intro = document.getElementById('intro');
     const aboutScreen = document.getElementById('about-screen');
     const typingContainer = document.getElementById('typing-container');
     const startTestBtn = document.getElementById('startTestBtn');
+    const difficultySelect = document.getElementById('difficulty');
+    const paragraphElement = document.getElementById('paragraph');
+    const typedArea = document.getElementById('typed_text');
+    const startBtn = document.getElementById('startBtn');
+    const timerElement = document.getElementById('timer');
+    const timeTakenInput = document.getElementById('time_taken');
+    let timeLeft = 30, startTime, interval;
 
-    // 1️⃣ Intro click -> About screen
     intro.addEventListener('click', () => {
         intro.style.display = 'none';
         aboutScreen.style.display = 'flex';
-        document.body.classList.add('about-active');
     });
 
-    // 2️⃣ About screen button -> Typing test
     startTestBtn.addEventListener('click', () => {
         aboutScreen.style.display = 'none';
         typingContainer.style.display = 'block';
-        document.body.classList.add('typing-active');
     });
 
-    // 🕒 Timer + test logic
-    let timerElement = document.getElementById('timer');
-    let typedArea = document.getElementById('typed_text');
-    let startBtn = document.getElementById('startBtn');
-    let startTimeInput = document.getElementById('start_time');
-    let timeLeft = 30;
-    let interval;
+    // Change paragraph when difficulty changes
+    difficultySelect.addEventListener('change', () => {
+        const diff = difficultySelect.value;
+        fetch(`/?difficulty=${diff}`, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+        .then(res => res.json())
+        .then(data => {
+            paragraphElement.textContent = data.paragraph;
+            document.querySelector('input[name="difficulty"]').value = data.difficulty;
+        });
+    });
 
+    // Start typing test
     startBtn.onclick = function() {
         typedArea.disabled = false;
         typedArea.focus();
         startBtn.disabled = true;
-        startTimeInput.value = Date.now() / 1000;
+        startTime = Date.now();
+        timeLeft = 30;
+        timerElement.innerText = timeLeft;
+
         interval = setInterval(() => {
             timeLeft--;
             timerElement.innerText = timeLeft;
             if (timeLeft <= 0) {
                 clearInterval(interval);
+                alert("⏰ Time's up!");
+                let endTime = Date.now();
+                timeTakenInput.value = ((endTime - startTime) / 1000).toFixed(2);
                 typedArea.form.submit();
             }
         }, 1000);
     };
+});
 </script>
-
 </body>
 </html>
