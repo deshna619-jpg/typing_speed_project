@@ -1,8 +1,10 @@
 /* INTRO SCREEN WITH BLURRED IMAGE */
 #intro {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,8 +20,10 @@
 #intro::before {
     content: "";
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
     background-image: url('https://i.pinimg.com/originals/0f/d0/5a/0fd05a8e2b68595052c1bb2385ed6677.gif');
     background-size: cover;
     background-position: center;
@@ -31,8 +35,10 @@
 #intro::after {
     content: "";
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
     background: linear-gradient(135deg, #6a00f4, #ff007f, #ff9d00);
     background-size: 400% 400%;
     animation: sunsetBG 10s ease infinite alternate;
@@ -58,29 +64,31 @@
 }
 
 @keyframes fadeSlideIn {
-    0% {opacity: 0; transform: translateY(20px);}
-    100% {opacity: 1; transform: translateY(0);}
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes sunsetBG {
-    0% {background-position: 0% 50%;}
-    50% {background-position: 100% 50%;}
-    100% {background-position: 0% 50%;}
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 /* ABOUT SCREEN */
 #about-screen {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     text-align: center;
     background-image: url('https://img.freepik.com/premium-photo/sunset-with-building-background_916211-12606.jpg');
     background-size: cover;
     background-position: center;
-    overflow-y: auto;
+    overflow-y: auto; /* allow scrolling */
     color: #222;
     padding: 40px;
     backdrop-filter: blur(4px);
@@ -88,15 +96,14 @@
 }
 
 .about-container {
-    max-width: 850px;
-    background: rgba(255,255,255,0.88);
-    padding: 45px;
+    width: 90%;
+    max-width: 900px;
+    background: rgba(255,255,255,0.95);
+    padding: 60px;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-    transition: transform 0.3s ease;
-}
-.about-container:hover {
-    transform: translateY(-4px);
+    margin: 40px auto;
+    text-align: left;
 }
 
 .about-container h1 {
@@ -110,7 +117,6 @@
     font-size: 18px;
     line-height: 1.6;
     color: #333;
-    text-align: left;
 }
 
 /* START TEST BUTTON */
@@ -130,38 +136,49 @@
     box-shadow: 0 8px 25px rgba(255,65,108,0.6);
 }
 
-/* CREATOR SECTION */
-.creator-section {
+/* SCROLLABLE CREATORS SECTION */
+.creators-section {
     margin-top: 60px;
-    padding-top: 25px;
+    padding-top: 40px;
     border-top: 2px solid rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    background-color: rgba(245, 245, 245, 0.7); /* subtle color */
+    padding: 20px;
+    border-radius: 15px;
 }
 
-.creator-section h2 {
+.creators-section h2 {
+    font-size: 32px;
     color: #111;
-    font-size: 28px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
-.underline-text {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 6px;
+.creator-card {
+    background: rgba(255, 255, 255, 0.85); /* subtle pop */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    text-align: left;
+    transition: transform 0.3s;
 }
 
-/* ✨ blinking stars ✨ */
-.blink-star {
-    animation: blink 1.4s infinite ease-in-out;
-}
-@keyframes blink {
-    0%, 50%, 100% { opacity: 1; }
-    25%, 75% { opacity: 0; }
+.creator-card:hover {
+    transform: translateY(-3px);
 }
 
-.creator-section p {
-    font-size: 17px;
-    line-height: 1.6;
-    color: #444;
+.creator-card h3 {
+    font-size: 22px;
+    margin-bottom: 8px;
+    color: #222;
+}
+
+.creator-card p {
+    font-size: 16px;
+    margin: 3px 0;
+    color: #555;
 }
 
 /* Typing Screen */
@@ -170,7 +187,6 @@ body.typing-active {
     transition: background 1s ease-in-out;
 }
 
-/* ✅ NEW: Typing Test Full Background + Overlay */
 #typing-container {
     position: relative;
     min-height: 100vh;
@@ -226,6 +242,7 @@ body.typing-active {
     box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
 }
 
+/* Typing textarea */
 textarea {
     width: 100%;
     font-size: 18px;
@@ -235,6 +252,8 @@ textarea {
     resize: none;
     background-color: #fff;
     box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    overflow-y: auto; 
+    height: 120px;
 }
 
 .buttons-container {
@@ -267,15 +286,28 @@ button:hover {
     color: #111;
     font-weight: 600;
 }
+
+/* Popping paragraph colors for difficulty text */
+.medium-para {
+    color: #ff3c3c; /* red pop */
+}
+.hard-para {
+    color: #3cff3c; /* green pop */
+}
+.easy-para {
+    color: #3c79ff; /* blue pop */
+}
+
 #typing-container h1,
 #typing-container label {
     color: #fff !important;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* optional: better contrast */
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
-/* Make timer, results heading, and results text white */
+
 #typing-container p,
 #typing-container h2,
 #typing-container .results-text {
     color: #fff !important;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* optional: for better contrast */
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
+
