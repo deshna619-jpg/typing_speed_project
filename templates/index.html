@@ -32,7 +32,9 @@
 
         <!-- PROFESSIONAL MEET THE CREATORS -->
         <div class="creator-section"> 
-            <h2><span class="blink-star">✨</span> Meet the Creators <span class="blink-star">✨</span></h2> 
+            <h2><span class="blink-star">✨</span> 
+                <span class="underline">Meet the Creators</span> 
+            <span class="blink-star">✨</span></h2> 
             <div class="creator-cards">
                 <div class="creator-card">
                     <h3>Anupama Bharti</h3>
@@ -65,7 +67,13 @@
         </select>
     </div>
 
-    <p id="paragraph">{{ paragraph }}</p>
+    <p id="paragraph">
+    {% if highlighted_paragraph %}
+        {{ highlighted_paragraph|safe }}
+    {% else %}
+        {{ paragraph }}
+    {% endif %}
+    </p>
 
     <form method="POST">
         <textarea id="typed_text" name="typed_text" rows="6" cols="80" placeholder="Start typing here..." disabled>{{ typed_text }}</textarea>
@@ -146,4 +154,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
