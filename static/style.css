@@ -76,7 +76,7 @@
 
 /* ABOUT SCREEN */
 #about-screen {
-    position: fixed;
+    position: relative;
     top: 0; 
     left: 0;
     width: 100%; 
@@ -111,6 +111,12 @@
     color: #111;
     margin-bottom: 25px;
     text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.4s ease;
+}
+
+.about-container h1:hover {
+    transform: scale(1.08);
 }
 
 .about-text, .features-text {
@@ -130,7 +136,10 @@
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(255,65,108,0.4);
     transition: all 0.3s ease-in-out;
+    display: block;
+    margin: 40px auto 0;   /* moves button a bit down + centers it */
 }
+
 #startTestBtn:hover {
     transform: scale(1.08);
     box-shadow: 0 8px 25px rgba(255,65,108,0.6);
@@ -150,10 +159,11 @@
 }
 
 .creators-section h2 {
-    font-size: 32px;
+    font-size: 41px; 
     color: #111;
     margin-bottom: 20px;
     text-align: center;
+    font-weight: 700;
 }
 
 .creator-card {
@@ -310,4 +320,25 @@ button:hover {
     color: #fff !important;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
+.underline {
+    text-decoration: underline;
+    text-decoration-thickness: 2px; /* bold underline */
+    text-underline-offset: 6px;     /* spacing between text & underline */
+}
+.blink-star {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
 
+/* Hover animation */
+.blink-star:hover {
+    animation: starBlink 0.6s infinite alternate;
+    transform: scale(1.2); /* thoda pop effect */
+}
+
+/* Blinking effect */
+@keyframes starBlink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
