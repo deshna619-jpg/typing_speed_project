@@ -16,11 +16,11 @@ TECH USED
 3. Storage: JSON
 
 PROJECT STRUCTURE
-static/style.css
-templates/index.html
-templates/stats.html
-app.py
-results.json
+- static/style.css 
+- templates/index.html
+- templates/stats.html
+- app.py
+- results.json
 
 HOW IT WORKS
 1. Select difficulty
