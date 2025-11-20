@@ -1,5 +1,5 @@
 TypeQuest – TYPING SPEED TEST WEB APP
-TypeQuest is a beautifully designed typing speed test website built using Flask (Python) and enhanced with animations, gradients, and an interactive UI. It allows users to test their typing speed, boost their accuracy, practice with different difficulty levels, and track performance over time
+- TypeQuest is a beautifully designed typing speed test website built using Flask (Python) and enhanced with animations, gradients, and an interactive UI. It allows users to test their typing speed, boost their accuracy, practice with different difficulty levels, and track performance over time
 
 FEATURES
 1. 3 difficulty levels (Easy / Medium / Hard)
