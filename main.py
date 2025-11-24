@@ -1,21 +1,21 @@
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 import random
-from difflib import SequenceMatcher  # For calculating typing accuracy
+from difflib import SequenceMatcher  
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"  # Needed for session management
+app.secret_key = "your_secret_key_here"  # to secure the session
 
-# Paragraphs for different difficulty levels
+# Sample paragraphs for different difficulty levels
 PARAGRAPHS = {
     "easy": [
-        "Typing is one of the most basic yet important computer skills for beginners learning to type correctly helps improve speed and accuracy making everyday tasks like writing emails chatting online or even coding much smoother with regular practice typing becomes second nature and saves a lot of time when working on a computer",
-        "Practice makes perfect when it comes to typing starting slow and steady helps you build confidence over time as your fingers get used to the keyboard your speed will naturally increase making everyday computer tasks easier and faster",
-        "Learning to type without looking at the keyboard is a valuable skill it allows you to focus on the screen and your thoughts rather than searching for keys this improves efficiency and reduces mistakes"
-    ],
-    "medium": [
         "Algorithms are the backbone of computer science they provide step by step instructions to solve problems efficiently understanding algorithms and data structures is crucial for writing optimized code and tackling complex challenges",
         "Time management is one of the most important skills in the digital age using calendars reminders and productivity apps can help you stay on track and avoid wasting time on unnecessary distractions",
         "Cybersecurity is not just for experts even regular users should follow basic safety rules like using strong passwords avoiding suspicious links and keeping software updated these small steps protect your data and privacy"
+    ],
+    "medium": [
+        "Typing is one of the most basic yet important computer skills for beginners learning to type correctly helps improve speed and accuracy making everyday tasks like writing emails chatting online or even coding much smoother with regular practice typing becomes second nature and saves a lot of time when working on a computer",
+        "Practice makes perfect when it comes to typing starting slow and steady helps you build confidence over time as your fingers get used to the keyboard your speed will naturally increase making everyday computer tasks easier and faster",
+        "Learning to type without looking at the keyboard is a valuable skill it allows you to focus on the screen and your thoughts rather than searching for keys this improves efficiency and reduces mistakes"
     ],
     "hard": [
         "Python is a powerful and versatile programming language that has become a cornerstone of modern computing it is widely used in fields such as web development data analysis artificial intelligence machine learning and automation its clean and readable syntax makes it beginner friendly while its vast ecosystem of libraries and frameworks allows professionals to solve complex problems efficiently success in programming however is not achieved overnight it requires patience consistent practice and the ability to learn from mistakes debugging errors experimenting with new tools and adapting to evolving technologies are all part of the journey that shapes a skilled programmer",
@@ -24,8 +24,7 @@ PARAGRAPHS = {
     ]
 }
 
-
-# defining function for accuracy 
+# Function to calculate accuracy
 def calculate_accuracy(typed, original):
     if not typed:
         return 0.0
@@ -38,10 +37,10 @@ def index():
     result = None
     accuracy = None
 
-    # Get difficulty level from user input
+    # Get difficulty from request or default to medium
     difficulty = request.values.get('difficulty', 'medium')
     if difficulty not in PARAGRAPHS:
-        difficulty = 'medium'
+        difficulty = 'medium'  # Fallback to medium if invalid
 
     # Pick a paragraph if new session or difficulty changed
     if 'paragraph' not in session or session.get('difficulty') != difficulty:
@@ -63,13 +62,14 @@ def index():
             result = 0
             accuracy = 0.0
 
-    # Return new paragraph for AJAX requests when difficulty changes
+    # Handle AJAX request for new paragraph
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         new_paragraph = random.choice(PARAGRAPHS[difficulty])
         session['paragraph'] = new_paragraph
         session['difficulty'] = difficulty
         return jsonify({'paragraph': new_paragraph, 'difficulty': difficulty})
 
+    # Send to main typing test page
     return render_template(
         'index.html',
         paragraph=paragraph,
@@ -79,21 +79,11 @@ def index():
         difficulty=difficulty
     )
 
-
-@app.route('/try-again')
+@app.route('/try-again') # Route to reset the test
 def try_again():
-    # Clear session to start a new test
     session.pop('paragraph', None)
     session.pop('difficulty', None)
     return redirect(url_for('index'))
 
-
-@app.route('/stats')
-def stats():
-    # Placeholder stats page
-    return render_template("stats.html", results=[], avg_speed=0, best_speed=0)
-
-
 if __name__ == "__main__":
-    app.run(debug=True)  # Start server in debug mode
-    
+    app.run(debug=True)
