@@ -1,12 +1,9 @@
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from datetime import datetime
-import random, json, os
-import difflib
+import random, os
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
-
-RESULTS_FILE = "results.json"
 
 # Paragraphs for each difficulty
 PARAGRAPHS = {
@@ -27,25 +24,21 @@ PARAGRAPHS = {
     ]
 }
 
-# Save a result
-def save_result(speed, accuracy):
-    record = {
-        "speed": speed,
-        "accuracy": accuracy,
-        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    }
-    results = []
-    if os.path.exists(RESULTS_FILE):
-        try:
-            with open(RESULTS_FILE, "r") as f:
-                results = json.load(f)
-        except json.JSONDecodeError:
-            results = []
-    results.append(record)
-    with open(RESULTS_FILE, "w") as f:
-        json.dump(results, f, indent=4)
+# CUSTOM ACCURACY FUNCTION
+def calculate_accuracy(typed, original):
+    correct = 0
+    length = min(len(typed), len(original))
 
-# Home route
+    for i in range(length):
+        if typed[i] == original[i]:
+            correct += 1
+
+    if len(typed) == 0:
+        return 0.0
+
+    return round((correct / len(typed)) * 100, 2)
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     typed_text = ""
@@ -67,29 +60,24 @@ def index():
 
     if request.method == 'POST':
         typed_text = request.form.get('typed_text', '').strip()
-        time_taken = float(request.form.get('time_taken', 0))  # seconds
+        time_taken = float(request.form.get('time_taken', 0))
 
-        # Clean whitespace for accurate comparison
         typed_text_clean = ' '.join(typed_text.split())
         paragraph_clean = ' '.join(paragraph.split())
 
         if typed_text_clean and time_taken > 0:
-            # Clean typed text and paragraph
+
             typed_text_clean = typed_text.strip()
             paragraph_clean = paragraph.strip()
-            # Only compare the portion that the user typed
+
             paragraph_to_compare = paragraph_clean[:len(typed_text_clean)]
-            matcher = difflib.SequenceMatcher(None, typed_text_clean, paragraph_to_compare)
-            accuracy = round(matcher.ratio() * 100, 2)
 
+            accuracy = calculate_accuracy(typed_text_clean, paragraph_to_compare)
 
-            # WPM = typed words / time in minutes
             typed_words = len(typed_text_clean.split())
             result = round(typed_words / (time_taken / 60), 2)
 
-            save_result(result, accuracy)
-
-            # Highlight mismatched words character-by-character
+            # Highlight mismatches
             original_words = paragraph_clean.split()
             typed_words_list = typed_text_clean.split()
             highlighted_words = []
@@ -103,7 +91,6 @@ def index():
                             highlighted_word += f'<span class="correct">{c}</span>'
                         else:
                             highlighted_word += f'<span class="incorrect">{c}</span>'
-                    # If typed_word is longer than the original word, mark extra chars incorrect
                     if len(typed_word) > len(word):
                         for extra_char in typed_word[len(word):]:
                             highlighted_word += f'<span class="incorrect">{extra_char}</span>'
@@ -112,12 +99,12 @@ def index():
                     highlighted_words.append(''.join(f'<span class="incorrect">{c}</span>' for c in word))
 
             highlighted_paragraph = " ".join(highlighted_words)
+
         else:
             result = 0
             accuracy = 0.0
             highlighted_paragraph = paragraph_clean
 
-    # AJAX difficulty switch
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         new_paragraph = random.choice(PARAGRAPHS[difficulty])
         session['paragraph'] = new_paragraph
@@ -134,28 +121,17 @@ def index():
         difficulty=difficulty
     )
 
-# Try again
 @app.route('/try-again')
 def try_again():
     session.pop('paragraph', None)
     session.pop('difficulty', None)
     return redirect(url_for('index'))
 
-# Stats page
+# Stats page (now simply empty)
 @app.route('/stats')
 def stats():
-    results = []
-    if os.path.exists(RESULTS_FILE):
-        try:
-            with open(RESULTS_FILE, "r") as f:
-                results = json.load(f)
-        except json.JSONDecodeError:
-            results = []
-
-    speeds = [r["speed"] for r in results]
-    avg_speed = round(sum(speeds) / len(speeds), 2) if speeds else 0
-    best_speed = max(speeds) if speeds else 0
-    return render_template("stats.html", results=results, avg_speed=avg_speed, best_speed=best_speed)
+    return render_template("stats.html", results=[], avg_speed=0, best_speed=0)
 
 if __name__ == "__main__":
     app.run(debug=True)
+    
