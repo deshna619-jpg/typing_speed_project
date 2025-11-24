@@ -30,17 +30,14 @@ def calculate_accuracy(typed, original):
         return 0.0
     return round(SequenceMatcher(None, typed, original).ratio() * 100, 2)
 
-
 @app.route('/', methods=['GET', 'POST'])
-def index():
+def index(): # Main route for typing test
     typed_text = ""
     result = None
     accuracy = None
 
     # Get difficulty from request or default to medium
     difficulty = request.values.get('difficulty', 'medium')
-    if difficulty not in PARAGRAPHS:
-        difficulty = 'medium'  # Fallback to medium if invalid
 
     # Pick a paragraph if new session or difficulty changed
     if 'paragraph' not in session or session.get('difficulty') != difficulty:
